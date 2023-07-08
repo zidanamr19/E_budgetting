@@ -81,4 +81,15 @@ router.put("/:id_renstra", async (req, res) => {
     }
   });
 
+  router.get("/all", async (req,res) =>{
+    try {
+        
+    } catch (error) {
+        return res.status(500).json({
+            status : 0,
+            message : error.message
+        })
+    }
+})
+
 module.exports = router;
