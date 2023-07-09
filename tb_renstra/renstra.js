@@ -35,57 +35,69 @@ router.post("/multi/insert", async (req, res) => {
       status: data.status,
     };
 
-    const simpan_renstra = await database("tb_renstra").insert(input_renstra);
+    // Simpan data ke tabel tb_renstra
+    const [id_renstra] = await database("tb_renstra").insert(input_renstra);
 
-    if (simpan_renstra) {
-      const id_renstra = simpan_renstra[0]; // Ambil nilai ID renstra yang disimpan
+    // Simpan data ke tabel tb_sasaran_renstra
+    
 
-      const input_sebaran_renstra = {
+    // Simpan data ke tabel tb_strategi_renstra
+    
+
+    // Simpan data ke tabel tb_tahun_capaian_renstra
+      const input_tahun_capaian_renstra = {
         id_renstra: id_renstra,
-        id_sebaran_renstra: null, // Ganti dengan nilai yang sesuai, jika perlu
-        id_unit_kerja: data.id_unit_kerja,
-        baseline: data.baseline,
-      };
+        tahun: data.tahun,
+        jumlah: data.jumlah,
+        status: data.status,}
 
-      const simpan_sebaran_renstra = await database("tb_sebaran_renstra").insert(input_sebaran_renstra);
+      await database("tb_tahun_capaian_renstra").insert(input_tahun_capaian_renstra);
 
-      if (data.id_jenis_status == "7") {
-        return res.status(201).json({
-          status: 1,
-          message: "Berhasil",
-          result: {
-            renstra: {
-              id_renstra: id_renstra,
-              ...input_renstra,
-            },
-            sebaran_renstra: {
-              id_sebaran_renstra: simpan_sebaran_renstra[0],
-              ...input_sebaran_renstra,
-            },
-          },
-        });
-      } else {
-        return res.status(201).json({
-          status: 1,
-          message: "Berhasil",
-          result: {
-            renstra: {
-              id_renstra: id_renstra,
-              ...input_renstra,
-            },
-            sebaran_renstra: {
-              id_sebaran_renstra: simpan_sebaran_renstra[0],
-              ...input_sebaran_renstra,
-            },
-          },
-        });
-      }
-    } else {
-      return res.status(422).json({
-        status: 0,
-        message: "Gagal simpan",
-      });
-    }
+      const input_strategi = {
+        id_renstra: id_renstra,
+        strategi: data.strategi,
+        status: data.status,}
+
+      await database("tb_strategi_renstra").insert(input_strategi);
+ 
+      const input_sasaran_renstra = {
+        id_renstra: id_renstra,
+        sasaran_renstra: data.sasaran_renstra,
+        status: data.status,}
+      await database("tb_sasaran_renstra").insert(input_sasaran_renstra);
+
+    // Simpan data ke tabel tb_dokumen_renstra
+    const input_dokumen_renstra = {
+      id_renstra: id_renstra,
+      nama_dokumen: data.nama_dokumen,
+      patch_dokumen: data.patch_dokumen,
+      status: data.status,
+    };
+    await database("tb_dokumen_renstra").insert(input_dokumen_renstra);
+
+    // Simpan data ke tabel tb_sebaran_renstra
+    const input_sebaran_renstra = {
+      id_renstra: id_renstra,
+      id_unit_kerja: data.id_unit_kerja,
+      baseline: data.baseline,
+    };
+    await database("tb_sebaran_renstra").insert(input_sebaran_renstra);
+
+    return res.status(201).json({
+      status: 1,
+      message: "Berhasil",
+      result: {
+        renstra: {
+          id_renstra: id_renstra,
+          ...input_renstra,
+        },
+        sasaran_renstra: input_sasaran_renstra,
+        strategi: input_strategi,
+        tahun_capaian_renstra: input_tahun_capaian_renstra,
+        dokumen_renstra: input_dokumen_renstra,
+        sebaran_renstra: input_sebaran_renstra,
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       status: 0,
@@ -93,6 +105,7 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
+
 
 
 router.put("/:id_renstra", async (req, res) => {
