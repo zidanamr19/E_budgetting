@@ -70,7 +70,6 @@ router.post("/multi/insert", async (req, res) => {
     const input_dokumen_renstra = {
       id_renstra: id_renstra,
       nama_dokumen: data.nama_dokumen,
-      patch_dokumen: data.patch_dokumen,
       status: data.status,
     };
     await database("tb_dokumen_renstra").insert(input_dokumen_renstra);
