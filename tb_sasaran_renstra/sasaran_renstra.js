@@ -47,13 +47,13 @@ router.post("/simpan", validasi_data.data,verifikasi_validasi_data, async (req,r
         update_date: new Date()
     }
     try {
-        const simpan = await database("tb_sebaran_renstra").insert(data);
+        const simpan = await database("tb_sasaran_renstra").insert(data);
         if(simpan){
             return res.status(200).json({
                 status: 1,
                 message: "berhasil",
                 result: {
-                    id_sebaran_renstra: simpan[0],
+                    id_sasaran_renstra: simpan[0],
                     ...input
                 }
             })
