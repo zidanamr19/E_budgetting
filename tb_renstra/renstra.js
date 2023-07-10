@@ -13,14 +13,12 @@ const database = require("../config/database")
 //     }
 // })
 
-router.get("/:nama_bidang", async (req, res) => {
-  const namaBidang = req.params.nama_bidang;
-
+router.get("/", async (req, res) => {
   try {
-    const result = await database("tb_bidang_renstra")
-      .select("tb_bidang_renstra.id_bidang_renstra", "tb_renstra.id_renstra")
-      .leftJoin("tb_renstra", "tb_bidang_renstra.id_bidang_renstra", "tb_renstra.id_bidang_renstra")
-      .where("tb_bidang_renstra.nama_bidang", namaBidang);
+    const result = await database("tb_renstra")
+      .select("tb_bidang_renstra.nama_bidang", "tb_tahun_restra.nama_tahun", "tb_renstra.*")
+      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
+      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra");
 
     if (result.length > 0) {
       return res.status(200).json({
@@ -41,6 +39,8 @@ router.get("/:nama_bidang", async (req, res) => {
     });
   }
 });
+
+
 
 
 
