@@ -13,6 +13,39 @@ router.get("/all", async (req,res) =>{
     }
 })
 
+
+router.get("/:nama_tahun", async (req, res) => {
+  const namaTahun = req.params.nama_tahun;
+
+  try {
+    const result = await database("tb_tahun_restra")
+      .select("tb_tahun_restra.*", "tb_renstra.Program")
+      .leftJoin("tb_renstra", "tb_tahun_restra.id_tahun_restra", "tb_renstra.id_tahun_restra")
+      .where("tb_tahun_restra.nama_tahun", namaTahun);
+
+    if (result) {
+      return res.status(200).json({
+        status: 1,
+        message: "Berhasil",
+        totalData: 1, // Set jumlah data ke 1 karena hanya ada satu hasil
+        result: result,
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
 router.post("/multi/insert", async (req, res) => {
   const data = req.body;
   const input = {
@@ -33,6 +66,8 @@ router.post("/multi/insert", async (req, res) => {
       baseline: data.baseline,
       standart_ditetapkan: data.standart_ditetapkan,
       status: data.status,
+      create_date: new Date(),
+    update_date: new Date(),
     };
 
     // Simpan data ke tabel tb_renstra

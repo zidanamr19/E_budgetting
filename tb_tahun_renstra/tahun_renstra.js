@@ -27,6 +27,35 @@ router.get(`/`, async (req,res) =>{
     }
 })
 
+
+router.get("/:id", async (req, res) => {
+    const idTahun = req.params.id;
+  
+    try {
+      const query = `SELECT * FROM tb_tahun_restra WHERE id_tahun_restra = ?`;
+      const result = await database.raw(query, [idTahun]);
+  
+      if (result[0].length > 0) {
+        return res.status(200).json({
+          status: 1,
+          message: "Berhasil",
+          result: result[0],
+        });
+      } else {
+        return res.status(400).json({
+          status: 0,
+          message: "Data tidak ditemukan",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        status: 0,
+        message: error.message,
+      });
+    }
+  });
+  
+
 router.get(`/`, async (req,res) =>{
     try {
         
