@@ -17,10 +17,10 @@ router.get("/", async (req, res) => {
   try {
     const result = await database("tb_renstra")
       .select("tb_bidang_renstra.nama_bidang")
-      .select(database.raw("GROUP_CONCAT(tb_tahun_restra.nama_tahun SEPARATOR ', ') as nama_tahun"))
+      .select("tb_tahun_restra.nama_tahun")
       .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
       .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
-      .groupBy("tb_bidang_renstra.nama_bidang");
+      .groupBy("tb_bidang_renstra.nama_bidang", "tb_tahun_restra.nama_tahun");
 
     if (result.length > 0) {
       return res.status(200).json({
@@ -41,6 +41,7 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
 
 
 
