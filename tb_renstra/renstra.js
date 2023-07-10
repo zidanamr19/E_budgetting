@@ -47,32 +47,31 @@ router.get("/", async (req, res) => {
 
 
 
-router.get("/:id_renstra", async (req, res) => {
-  const { id_renstra } = req.params;
+router.get("/detail", async (req, res) => {
+  const { nama_bidang, nama_tahun } = req.query;
   const { page = 1, limit = 10 } = req.query;
 
   try {
     const offset = (page - 1) * limit;
 
     const query = database
-      .select (
-      "tb_renstra.id_renstra",
-      "tb_renstra.id_bidang_renstra",
-      "tb_renstra.id_tahun_restra",
-      "tb_bidang_renstra.nama_bidang",
-      "tb_renstra.program",
-      "tb_renstra.indikator",
-      "tb_renstra.tujuan",
-      "tb_renstra.kondisi_existing",
-      "tb_renstra.baseline",
-      "tb_renstra.standart_ditetapkan",
-      "tb_tahun_capaian_renstra.tahun",
-      "tb_tahun_capaian_renstra.jumlah",
-      "tb_strategi_renstra.strategi",
-      "tb_sasaran_renstra.sasaran_renstra",
-      "tb_dokumen_renstra.nama_dokumen",
-      "tb_renstra.status",
-    )
+      .select(
+        "tb_renstra.id_renstra",
+        "tb_bidang_renstra.nama_bidang",
+        "tb_tahun_restra.nama_tahun",
+        "tb_renstra.program",
+        "tb_renstra.indikator",
+        "tb_renstra.tujuan",
+        "tb_renstra.kondisi_existing",
+        "tb_renstra.baseline",
+        "tb_renstra.standart_ditetapkan",
+        "tb_tahun_capaian_renstra.tahun",
+        "tb_tahun_capaian_renstra.jumlah",
+        "tb_strategi_renstra.strategi",
+        "tb_sasaran_renstra.sasaran_renstra",
+        "tb_dokumen_renstra.nama_dokumen",
+        "tb_renstra.status"
+      )
       .from("tb_renstra")
       .leftJoin(
         "tb_tahun_capaian_renstra",
@@ -95,18 +94,22 @@ router.get("/:id_renstra", async (req, res) => {
         "tb_dokumen_renstra.id_renstra"
       )
       .leftJoin(
-        "tb_sebaran_renstra",
-        "tb_renstra.id_renstra",
-        "tb_sebaran_renstra.id_renstra"
-      )
-      .leftJoin(
         "tb_bidang_renstra",
         "tb_renstra.id_bidang_renstra",
         "tb_bidang_renstra.id_bidang_renstra"
       )
+      .leftJoin(
+        "tb_tahun_restra",
+        "tb_renstra.id_tahun_restra",
+        "tb_tahun_restra.id_tahun_restra"
+      )
       .modify((queryBuilder) => {
-        if (id_renstra) {
-          queryBuilder.where("tb_renstra.id_renstra", id_renstra);
+        if (nama_bidang) {
+          queryBuilder.where("tb_bidang_restra.nama_bidang", "like", `%${nama_bidang}%`);
+        }
+
+        if (nama_tahun) {
+          queryBuilder.where("tb_tahun_restra.nama_tahun", nama_tahun);
         }
       });
 
