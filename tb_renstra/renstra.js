@@ -2,25 +2,73 @@ const express = require("express")
 const router = express.Router();
 const database = require("../config/database")
 
-// router.get("/all", async (req,res) =>{
-//     try {
-        
-//     } catch (error) {
-//         return res.status(500).json({
-//             status : 0,
-//             message : error.message
-//         })
-//     }
-// })
 
-router.get("/bidang", async (req, res) => {
+
+
+
+
+router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
+  const { nama_bidang, nama_tahun } = req.params;
+
   try {
     const result = await database("tb_renstra")
-      .select("tb_bidang_renstra.nama_bidang")
-      .select("tb_tahun_restra.nama_tahun")
-      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
-      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
-      .groupBy("tb_bidang_renstra.nama_bidang", "tb_tahun_restra.nama_tahun");
+      .select(
+        "tb_renstra.*",
+        "tb_bidang_renstra.nama_bidang",
+        "tb_tahun_restra.nama_tahun"
+      )
+      .leftJoin(
+        "tb_bidang_renstra",
+        "tb_renstra.id_bidang_renstra",
+        "tb_bidang_renstra.id_bidang_renstra"
+      )
+      .leftJoin(
+        "tb_tahun_restra",
+        "tb_renstra.id_tahun_restra",
+        "tb_tahun_restra.id_tahun_restra"
+      )
+      .where("tb_bidang_renstra.nama_bidang", nama_bidang)
+      .where("tb_tahun_restra.nama_tahun", nama_tahun)
+      ;
+
+    if (result) {
+      return res.status(200).json({
+        status: 1,
+        message: "Berhasil",
+        result: result,
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
+
+
+router.get("/", async (req, res) => {
+  try {
+    const result = await database("tb_renstra")
+      .distinct("tb_bidang_renstra.nama_bidang", "tb_tahun_restra.nama_tahun")
+      .leftJoin(
+        "tb_bidang_renstra",
+        "tb_renstra.id_bidang_renstra",
+        "tb_bidang_renstra.id_bidang_renstra"
+      )
+      .leftJoin(
+        "tb_tahun_restra",
+        "tb_renstra.id_tahun_restra",
+        "tb_tahun_restra.id_tahun_restra"
+      );
 
     if (result.length > 0) {
       return res.status(200).json({
@@ -42,82 +90,15 @@ router.get("/bidang", async (req, res) => {
   }
 });
 
-
-
-
-
-
-router.get("/:id_tahun_restra", async (req, res) => {
-  const { id_tahun_restra } = req.params;
-
-  try {
-    const result = await database("tb_renstra")
-      .select("tb_renstra.*")
-      .where("tb_renstra.id_tahun_restra", id_tahun_restra);
-
-    if (result.length > 0) {
-      return res.status(200).json({
-        status: 1,
-        message: "Berhasil",
-        result: result,
-      });
-    } else {
-      return res.status(400).json({
-        status: 0,
-        message: "Data tidak ditemukan",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: 0,
-      message: error.message,
-    });
-  }
-});
-
-
-
-
-router.get("/renstra/:nama_tahun", async (req, res) => {
-  const namaTahun = req.params.nama_tahun;
-
-  try {
-    const result = await database("tb_renstra")
-      .select("tb_renstra.*", "tb_tahun_restra.nama_tahun")
-      .join("tb_tahun_restra", "tb_renstra.id_tahun_renstra", "tb_tahun_restra.id_tahun_renstra")
-      .where("tb_tahun_restra.nama_tahun", namaTahun);
-
-    const totalData = result.length;
-
-    if (totalData > 0) {
-      return res.status(200).json({
-        status: 1,
-        message: "Berhasil",
-        totalData: totalData,
-        result: result,
-      });
-    } else {
-      return res.status(400).json({
-        status: 0,
-        message: "Data tidak ditemukan",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: 0,
-      message: error.message,
-    });
-  }
-});
 
 
 
 
 router.post("/multi/insert", async (req, res) => {
-  const data = req.body; // Mendapatkan tanggal saat ini dalam format YYYY-MM-DD
+  const data = req.body;
 
   try {
-    const input_renstra = {
+    const inputRenstra = {
       id_bidang_renstra: data.id_bidang_renstra,
       id_tahun_restra: data.id_tahun_restra,
       program: data.program,
@@ -127,76 +108,82 @@ router.post("/multi/insert", async (req, res) => {
       baseline: data.baseline,
       standart_ditetapkan: data.standart_ditetapkan,
       status: data.status,
-      create_date: new Date (),
-      update_date: new Date ,
+      create_date: new Date(),
+      update_date: new Date(),
     };
 
     // Simpan data ke tabel tb_renstra
-    const [id_renstra] = await database("tb_renstra").insert(input_renstra);
+    const [idRenstra] = await database("tb_renstra").insert(inputRenstra);
 
     // Simpan data ke tabel tb_sasaran_renstra
-    
+    const inputSasaranRenstra = {
+      id_renstra: idRenstra,
+      sasaran_renstra: data.sasaran_renstra,
+      status: data.status,
+    };
+    await database("tb_sasaran_renstra").insert(inputSasaranRenstra);
 
     // Simpan data ke tabel tb_strategi_renstra
-    
+    const inputStrategi = {
+      id_renstra: idRenstra,
+      strategi: data.strategi,
+      status: data.status,
+    };
+    await database("tb_strategi_renstra").insert(inputStrategi);
 
     // Simpan data ke tabel tb_tahun_capaian_renstra
-    const input_tahun_capaian_renstra = {
-      id_renstra: id_renstra,
+    const inputTahunCapaianRenstra = {
+      id_renstra: idRenstra,
       tahun: data.tahun,
       jumlah: data.jumlah,
       status: data.status,
     };
-
-    await database("tb_tahun_capaian_renstra").insert(input_tahun_capaian_renstra);
-
-    const input_strategi = {
-      id_renstra: id_renstra,
-      strategi: data.strategi,
-      status: data.status,
-    };
-
-    await database("tb_strategi_renstra").insert(input_strategi);
-
-    const input_sasaran_renstra = {
-      id_renstra: id_renstra,
-      sasaran_renstra: data.sasaran_renstra,
-      status: data.status,
-    };
-
-    await database("tb_sasaran_renstra").insert(input_sasaran_renstra);
+    await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
 
     // Simpan data ke tabel tb_dokumen_renstra
-    const input_dokumen_renstra = {
-      id_renstra: id_renstra,
+    const inputDokumenRenstra = {
+      id_renstra: idRenstra,
       nama_dokumen: data.nama_dokumen,
       status: data.status,
     };
-
-    await database("tb_dokumen_renstra").insert(input_dokumen_renstra);
+    await database("tb_dokumen_renstra").insert(inputDokumenRenstra);
 
     // Simpan data ke tabel tb_sebaran_renstra
-    const input_sebaran_renstra = {
-      id_renstra: id_renstra,
+    const inputSebaranRenstra = {
+      id_renstra: idRenstra,
       id_unit_kerja: data.id_unit_kerja,
       baseline: data.baseline,
     };
+    await database("tb_sebaran_renstra").insert(inputSebaranRenstra);
 
-    await database("tb_sebaran_renstra").insert(input_sebaran_renstra);
+    // Dapatkan id_sebaran dari tb_sebaran_renstra
+    const { id_sebaran_renstra } = await database("tb_sebaran_renstra")
+      .select("id_sebaran_renstra")
+      .where("id_renstra", idRenstra)
+      .where("baseline", data.baseline)
+      .first();
+
+    // Simpan data ke tabel tb_detail_sebaran_renstra
+    const inputDetailSebaranRenstra = {
+      id_sebaran_renstra: id_sebaran_renstra,
+      tahun: data.tahun,
+    };
+    await database("tb_detail_sebaran_renstra").insert(inputDetailSebaranRenstra);
 
     return res.status(201).json({
       status: 1,
       message: "Berhasil",
       result: {
         renstra: {
-          id_renstra: id_renstra,
-          ...input_renstra,
+          id_renstra: idRenstra,
+          ...inputRenstra,
         },
-        sasaran_renstra: input_sasaran_renstra,
-        strategi: input_strategi,
-        tahun_capaian_renstra: input_tahun_capaian_renstra,
-        dokumen_renstra: input_dokumen_renstra,
-        sebaran_renstra: input_sebaran_renstra,
+        sasaran_renstra: inputSasaranRenstra,
+        strategi: inputStrategi,
+        tahun_capaian_renstra: inputTahunCapaianRenstra,
+        dokumen_renstra: inputDokumenRenstra,
+        sebaran_renstra: inputSebaranRenstra,
+        detail_sebaran_renstra: inputDetailSebaranRenstra,
       },
     });
   } catch (error) {
@@ -206,6 +193,7 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
+
 
 
 
