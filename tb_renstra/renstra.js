@@ -91,23 +91,23 @@ router.get("/", async (req, res) => {
 });
 
 
-router.get("/:nama_bidang", async (req, res) => {
-  const namaBidang = req.params.nama_bidang;
+router.get("/program-renstra", async (req, res) => {
+  const { nama_bidang } = req.query;
 
   try {
-    const result = await database("tb_renstra")
-      .select("id_renstra", "program")
+    const programs = await database("tb_renstra")
+      .select("program", "id_renstra")
       .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
-      .where("tb_bidang_renstra.nama_bidang", namaBidang);
+      .where("tb_bidang_renstra.nama_bidang", nama_bidang);
 
-    if (result.length > 0) {
+    if (programs.length > 0) {
       return res.status(200).json({
         status: 1,
-        message: "Berhasil",
-        result: result.map(item => ({ id_renstra: item.id_renstra, program: item.program })),
+        message: "Data ditemukan",
+        programs: programs,
       });
     } else {
-      return res.status(400).json({
+      return res.status(404).json({
         status: 0,
         message: "Data tidak ditemukan",
       });
@@ -119,6 +119,7 @@ router.get("/:nama_bidang", async (req, res) => {
     });
   }
 });
+
 
 
 
