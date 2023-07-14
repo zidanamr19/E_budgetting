@@ -3,31 +3,28 @@ const router = express.Router();
 const database = require("../config/database");
 const bcrypt = require('bcrypt');
 
-router.get("/unitkerja/:user", async (req, res) => {
-    const user = req.params.user;
-  
-    try {
-      const unitKerja = await database("tb_unit_kerja").where("user", user).limit(1);
-  
-      if (unitKerja.length > 0) {
-        return res.status(200).json({
-          status: 1,
-          message: "Berhasil",
-          result: unitKerja[0],
-        });
-      } else {
-        return res.status(404).json({
-          status: 0,
-          message: "Data tidak ditemukan",
-        });
-      }
-    } catch (error) {
+router.get(`/`, async (req,res) =>{
+  try {
+      const result = await database.select("*").from('tb_unit_kerja')
+      if(result.length > 0){
+          return res.status(200).json({
+              status :1,
+              message : "Berhasil",
+              result : result
+          })
+      }else{
+         return res.status(400).json({
+             status : 0,
+             message : "Gagal",
+        })
+      }   
+  } catch (error) {
       return res.status(500).json({
-        status: 0,
-        message: error.message,
-      });
-    }
-  });
+          status : 0,
+          message : error.message
+      })
+  }
+})
   
 
 

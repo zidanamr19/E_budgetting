@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require("express");
 const router = express.Router();
 const database = require("../config/database")
 
@@ -91,6 +91,30 @@ router.get("/", async (req, res) => {
 });
 
 
+router.get("/program", async (req, res) => {
+  try {
+    const result = await database("tb_renstra")
+      .select("program");
+
+    if (result.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Berhasil",
+        result: result.map(item => item.program),
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
 
 
 
@@ -152,7 +176,7 @@ router.post("/multi/insert", async (req, res) => {
     const inputSebaranRenstra = {
       id_renstra: idRenstra,
       id_unit_kerja: data.id_unit_kerja,
-      baseline: data.baseline,
+      // baseline: data.baseline,
     };
     await database("tb_sebaran_renstra").insert(inputSebaranRenstra);
 
@@ -160,7 +184,7 @@ router.post("/multi/insert", async (req, res) => {
     const { id_sebaran_renstra } = await database("tb_sebaran_renstra")
       .select("id_sebaran_renstra")
       .where("id_renstra", idRenstra)
-      .where("baseline", data.baseline)
+      // .where("baseline", data.baseline)
       .first();
 
     // Simpan data ke tabel tb_detail_sebaran_renstra
