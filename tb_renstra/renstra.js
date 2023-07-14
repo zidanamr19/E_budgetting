@@ -94,13 +94,13 @@ router.get("/", async (req, res) => {
 router.get("/program", async (req, res) => {
   try {
     const result = await database("tb_renstra")
-      .select("program");
+      .select("id_renstra", "program");
 
     if (result.length > 0) {
       return res.status(200).json({
         status: 1,
         message: "Berhasil",
-        result: result.map(item => item.program),
+        result: result.map(item => ({ id_renstra: item.id_renstra, program: item.program })),
       });
     } else {
       return res.status(400).json({
