@@ -91,10 +91,14 @@ router.get("/", async (req, res) => {
 });
 
 
-router.get("/program", async (req, res) => {
+router.get("/:nama_bidang", async (req, res) => {
+  const namaBidang = req.params.nama_bidang;
+
   try {
     const result = await database("tb_renstra")
-      .select("id_renstra", "program");
+      .select("id_renstra", "program")
+      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
+      .where("tb_bidang_renstra.nama_bidang", namaBidang);
 
     if (result.length > 0) {
       return res.status(200).json({
@@ -115,6 +119,7 @@ router.get("/program", async (req, res) => {
     });
   }
 });
+
 
 
 
@@ -178,21 +183,6 @@ router.post("/multi/insert", async (req, res) => {
       id_unit_kerja: data.id_unit_kerja,
       // baseline: data.baseline,
     };
-    await database("tb_sebaran_renstra").insert(inputSebaranRenstra);
-
-    // Dapatkan id_sebaran dari tb_sebaran_renstra
-    const { id_sebaran_renstra } = await database("tb_sebaran_renstra")
-      .select("id_sebaran_renstra")
-      .where("id_renstra", idRenstra)
-      // .where("baseline", data.baseline)
-      .first();
-
-    // Simpan data ke tabel tb_detail_sebaran_renstra
-    const inputDetailSebaranRenstra = {
-      id_sebaran_renstra: id_sebaran_renstra,
-      tahun: data.tahun,
-    };
-    await database("tb_detail_sebaran_renstra").insert(inputDetailSebaranRenstra);
 
     return res.status(201).json({
       status: 1,
@@ -206,8 +196,6 @@ router.post("/multi/insert", async (req, res) => {
         strategi: inputStrategi,
         tahun_capaian_renstra: inputTahunCapaianRenstra,
         dokumen_renstra: inputDokumenRenstra,
-        sebaran_renstra: inputSebaranRenstra,
-        detail_sebaran_renstra: inputDetailSebaranRenstra,
       },
     });
   } catch (error) {
