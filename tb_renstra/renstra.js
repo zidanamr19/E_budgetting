@@ -178,13 +178,6 @@ router.post("/multi/insert", async (req, res) => {
     };
     await database("tb_dokumen_renstra").insert(inputDokumenRenstra);
 
-    // Simpan data ke tabel tb_sebaran_renstra
-    const inputSebaranRenstra = {
-      id_renstra: idRenstra,
-      id_unit_kerja: data.id_unit_kerja,
-      // baseline: data.baseline,
-    };
-
     return res.status(201).json({
       status: 1,
       message: "Berhasil",
