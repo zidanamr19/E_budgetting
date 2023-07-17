@@ -52,10 +52,9 @@ router.post("/multi/insert", async (req, res) => {
       update_date: new Date(),
     };
 
-    // Simpan data ke tabel tb_renstra
+    // Simpan data ke tabel tb_sebaran_renstra
     const [idSebaranRenstra] = await database("tb_sebaran_renstra").insert(inputSebaranRenstra);
 
-    // Simpan data ke tabel tb_sasaran_renstra
     const inputDetailSebaran = {
       id_sebaran_renstra: idSebaranRenstra,
       tahun: data.tahun,
@@ -66,7 +65,7 @@ router.post("/multi/insert", async (req, res) => {
       status: 1,
       message: "Berhasil",
       result: {
-        renstra: {
+        sebaran_renstra: {
           id_sebaran_renstra: idSebaranRenstra,
           ...inputSebaranRenstra,
         },

@@ -15,7 +15,12 @@ router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
       .select(
         "tb_renstra.*",
         "tb_bidang_renstra.nama_bidang",
-        "tb_tahun_restra.nama_tahun"
+        "tb_tahun_restra.nama_tahun",
+        "tb_sasaran_renstra.sasaran_renstra",
+        "tb_strategi_renstra.strategi",
+        "tb_tahun_capaian_renstra.tahun",
+        "tb_tahun_capaian_renstra.jumlah",
+        "tb_dokumen_renstra.nama_dokumen"
       )
       .leftJoin(
         "tb_bidang_renstra",
@@ -27,9 +32,28 @@ router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
         "tb_renstra.id_tahun_restra",
         "tb_tahun_restra.id_tahun_restra"
       )
+      .leftJoin(
+        "tb_sasaran_renstra",
+        "tb_renstra.id_renstra",
+        "tb_sasaran_renstra.id_renstra"
+      )
+      .leftJoin(
+        "tb_strategi_renstra",
+        "tb_renstra.id_renstra",
+        "tb_strategi_renstra.id_renstra"
+      )
+      .leftJoin(
+        "tb_tahun_capaian_renstra",
+        "tb_renstra.id_renstra",
+        "tb_tahun_capaian_renstra.id_renstra"
+      )
+      .leftJoin(
+        "tb_dokumen_renstra",
+        "tb_renstra.id_renstra",
+        "tb_dokumen_renstra.id_renstra"
+      )
       .where("tb_bidang_renstra.nama_bidang", nama_bidang)
-      .where("tb_tahun_restra.nama_tahun", nama_tahun)
-      ;
+      .where("tb_tahun_restra.nama_tahun", nama_tahun);
 
     if (result) {
       return res.status(200).json({
@@ -50,6 +74,8 @@ router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
     });
   }
 });
+
+
 
 
 
@@ -116,10 +142,9 @@ router.get("/program-renstra", async (req, res) => {
     return res.status(500).json({
       status: 0,
       message: error.message,
-    });
-  }
+    });
+  }
 });
-
 
 
 
