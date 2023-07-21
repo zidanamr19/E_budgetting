@@ -3,10 +3,6 @@ const router = express.Router();
 const database = require("../config/database")
 
 
-
-
-
-
 router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
   const { nama_bidang, nama_tahun } = req.params;
 
@@ -75,12 +71,6 @@ router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
 router.get("/", async (req, res) => {
   try {
     const result = await database("tb_renstra")
@@ -117,20 +107,22 @@ router.get("/", async (req, res) => {
 });
 
 
-router.get("/program-renstra", async (req, res) => {
-  const { nama_bidang } = req.query;
+
+router.get("/bidang-renstra-by-tahun/:nama_tahun", async (req, res) => {
+  const { nama_tahun } = req.params;
 
   try {
-    const programs = await database("tb_renstra")
-      .select("program", "id_renstra")
-      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
-      .where("tb_bidang_renstra.nama_bidang", nama_bidang);
+    const bidangRenstra = await database("tb_bidang_renstra")
+      .select("nama_bidang")
+      .leftJoin("tb_renstra", "tb_bidang_renstra.id_bidang_renstra", "tb_renstra.id_bidang_renstra")
+      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
+      .where("tb_tahun_restra.nama_tahun", nama_tahun);
 
-    if (programs.length > 0) {
+    if (bidangRenstra.length > 0) {
       return res.status(200).json({
         status: 1,
         message: "Data ditemukan",
-        programs: programs,
+        bidang_renstra: bidangRenstra,
       });
     } else {
       return res.status(404).json({
@@ -142,12 +134,42 @@ router.get("/program-renstra", async (req, res) => {
     return res.status(500).json({
       status: 0,
       message: error.message,
-    });
-  }
+    });
+  }
 });
 
+router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (req, res) => {
+  const { nama_tahun, nama_bidang } = req.params;
 
+  try {
+    const programRenstra = await database("tb_renstra")
+      .select("program")
+      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
+      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
+      .where("tb_tahun_restra.nama_tahun", nama_tahun)
+      .where("tb_bidang_renstra.nama_bidang", nama_bidang);
 
+    if (programRenstra.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Data ditemukan",
+        program_renstra: programRenstra,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+module.exports = router;
 
 router.post("/multi/insert", async (req, res) => {
   const data = req.body;
@@ -224,9 +246,6 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
-
-
-
 
 router.put("/multi/edit", async (req, res) => {
   const data = req.body;
@@ -332,9 +351,7 @@ router.put("/multi/edit", async (req, res) => {
   }
 });
 
-
-
-  router.get("/all", async (req,res) =>{
+router.get("/all", async (req,res) =>{
     try {
         
     } catch (error) {
