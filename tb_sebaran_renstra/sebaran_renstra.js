@@ -6,16 +6,10 @@ const database = require("../config/database");
 router.get("/", async (req, res) => {
   try {
     const result = await database("tb_sebaran_renstra")
-      .distinct("tb_unit_kerja.nama_unit_kerja", "tb_bidang_renstra.nama_bidang")
+      .select("tb_unit_kerja.nama_unit_kerja", "tb_detail_sebaran_renstra.tahun")
       .leftJoin("tb_unit_kerja", "tb_sebaran_renstra.id_unit_kerja", "tb_unit_kerja.id_unit_kerja")
-      .leftJoin("tb_bidang_renstra", function() {
-        this.on("tb_sebaran_renstra.id_renstra", "=", "tb_bidang_renstra.nama_bidang");
-      })
-      .whereIn("tb_sebaran_renstra.id_renstra", function() {
-        this.select("id_renstra")
-          .from("tb_renstra")
-          .whereRaw("tb_renstra.id_renstra = tb_sebaran_renstra.id_renstra");
-      });
+      .leftJoin("tb_detail_sebaran_renstra", "tb_sebaran_renstra.id_sebaran_renstra", "tb_detail_sebaran_renstra.id_sebaran_renstra")
+      .groupBy("tb_unit_kerja.nama_unit_kerja", "tb_detail_sebaran_renstra.tahun");
 
     if (result.length > 0) {
       return res.status(200).json({
