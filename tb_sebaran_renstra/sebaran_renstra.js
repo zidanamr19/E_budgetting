@@ -14,6 +14,7 @@ router.get("/:nama_unit_kerja", async (req, res) => {
         "tb_unit_kerja.nama_unit_kerja",
         database.raw("JSON_UNQUOTE(tb_detail_sebaran_renstra.tahun) AS tahun"),
         database.raw("JSON_UNQUOTE(tb_detail_sebaran_renstra.jumlah) AS jumlah"),
+        "tb_renstra.id_renstra",
         "tb_renstra.program"
       )
       .leftJoin("tb_unit_kerja", "tb_sebaran_renstra.id_unit_kerja", "tb_unit_kerja.id_unit_kerja")
@@ -40,10 +41,6 @@ router.get("/:nama_unit_kerja", async (req, res) => {
     });
   }
 });
-
-
-
-
 
 
 router.get("/", async (req, res) => {
