@@ -10,5 +10,6 @@ router.use("/sasaran", require("../tb_sasaran_renstra/sasaran_renstra"))
 router.use("/strategi", require("../tb_strategi_renstra/strategi_renstra"))
 router.use("/capaian", require("../tb_tahun capaian_renstra/tahun_capaian"))
 router.use("/sebaran", require("../tb_sebaran_renstra/sebaran_renstra"))
+router.use("/rkat", require("../tb_rkat/rkat"))
 
 module.exports= router
