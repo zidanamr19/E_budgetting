@@ -3,7 +3,7 @@ const router = express.Router();
 const database = require("../config/database")
 
 
-router.get("/:nama_bidang/:nama_tahun", async (req, res) => {
+router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
   const { nama_bidang, nama_tahun } = req.params;
 
   try {
@@ -211,8 +211,8 @@ router.post("/multi/insert", async (req, res) => {
     // Simpan data ke tabel tb_tahun_capaian_renstra
     const inputTahunCapaianRenstra = {
       id_renstra: idRenstra,
-      tahun: data.tahun,
-      jumlah: data.jumlah,
+      tahun: JSON.stringify(data.tahun),
+      jumlah: JSON.stringify(data.jumlah),
       status: data.status,
     };
     await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
