@@ -93,8 +93,8 @@ router.post("/multi/insert", async (req, res) => {
 
     const inputDetailSebaran = {
       id_sebaran_renstra: idSebaranRenstra,
-      tahun: data.tahun,
-      jumlah: data.jumlah,
+      tahun: JSON.stringify(data.tahun),
+      jumlah: JSON.stringify(data.jumlah),
     };
 
     return res.status(201).json({
