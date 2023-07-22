@@ -12,8 +12,8 @@ router.get("/:nama_unit_kerja", async (req, res) => {
         "tb_sebaran_renstra.id_sebaran_renstra",
         "tb_sebaran_renstra.baseline",
         "tb_unit_kerja.nama_unit_kerja",
-        "tb_detail_sebaran_renstra.tahun",
-        "tb_detail_sebaran_renstra.jumlah",
+        database.raw("JSON_UNQUOTE(tb_detail_sebaran_renstra.tahun) AS tahun"),
+        database.raw("JSON_UNQUOTE(tb_detail_sebaran_renstra.jumlah) AS jumlah"),
         "tb_renstra.program"
       )
       .leftJoin("tb_unit_kerja", "tb_sebaran_renstra.id_unit_kerja", "tb_unit_kerja.id_unit_kerja")
@@ -40,6 +40,7 @@ router.get("/:nama_unit_kerja", async (req, res) => {
     });
   }
 });
+
 
 
 
@@ -96,6 +97,7 @@ router.post("/multi/insert", async (req, res) => {
       tahun: JSON.stringify(data.tahun),
       jumlah: JSON.stringify(data.jumlah),
     };
+    await database("tb_detail_sebaran_renstra").insert(inputDetailSebaran); // Perubahan dari inputDetailSebaranRenstra menjadi inputDetailSebaran
 
     return res.status(201).json({
       status: 1,
@@ -105,7 +107,7 @@ router.post("/multi/insert", async (req, res) => {
           id_sebaran_renstra: idSebaranRenstra,
           ...inputSebaranRenstra,
         },
-        detail_sebaran: inputDetailSebaran,
+        detail_sebaran_renstra: inputDetailSebaran, // Perubahan dari inputDetailSebaranRenstra menjadi inputDetailSebaran
       },
     });
   } catch (error) {
@@ -115,6 +117,7 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
+
 
 
   
