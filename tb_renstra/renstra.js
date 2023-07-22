@@ -169,7 +169,6 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
   }
 });
 
-module.exports = router;
 
 router.post("/multi/insert", async (req, res) => {
   const data = req.body;
