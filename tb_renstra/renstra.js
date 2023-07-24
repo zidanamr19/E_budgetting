@@ -143,17 +143,20 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
 
   try {
     const programRenstra = await database("tb_renstra")
-      .select("id_renstra","program", "baseline") // Menambahkan kolom baseline ke dalam select query
+      .select("id_renstra", "program")
       .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
       .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
       .where("tb_tahun_restra.nama_tahun", nama_tahun)
       .where("tb_bidang_renstra.nama_bidang", nama_bidang);
 
     if (programRenstra.length > 0) {
+      const idRenstra = programRenstra[0].id_renstra; // Ambil id_renstra dari data program-renstra yang ditemukan
+      const baselineData = await getBaselineData(idRenstra); // Panggil fungsi untuk mendapatkan data baseline
       return res.status(200).json({
         status: 1,
         message: "Data ditemukan",
         program_renstra: programRenstra,
+        baseline_data: baselineData,
       });
     } else {
       return res.status(404).json({
@@ -169,6 +172,18 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
   }
 });
 
+// Fungsi untuk mendapatkan data baseline berdasarkan id_renstra
+async function getBaselineData(id_renstra) {
+  try {
+    const baselineData = await database("tb_renstra")
+      .select("baseline")
+      .where("id_renstra", id_renstra);
+
+    return baselineData;
+  } catch (error) {
+    throw error;
+  }
+}
 
 
 router.post("/multi/insert", async (req, res) => {
