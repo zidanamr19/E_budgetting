@@ -3,7 +3,35 @@ const router = express.Router();
 const database = require("../config/database")
 
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
+  try {
+    const paguData = await database("tb_pagu")
+      .select("tb_pagu.*", "tb_unit_kerja.nama_unit_kerja")
+      .leftJoin("tb_unit_kerja", "tb_pagu.id_unit_kerja", "tb_unit_kerja.id_unit_kerja");
+
+    if (rkatData.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Data PAGU ditemukan",
+        pagu_data: paguData,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Data PAGU tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
+router.post("/simpan", async (req, res) => {
     const { id_unit_kerja, tahun, jumlah, status } = req.body;
   
     try {
@@ -11,7 +39,7 @@ router.post("/", async (req, res) => {
       const inputPAGU = {
         id_unit_kerja: id_unit_kerja,
         tahun: tahun,
-       jumlah : jumlah,
+        jumlah : jumlah,
         status: status,
         create_date: new Date(),
         update_date: new Date(),
