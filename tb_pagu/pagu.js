@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
       .select("tb_pagu.*", "tb_unit_kerja.nama_unit_kerja")
       .leftJoin("tb_unit_kerja", "tb_pagu.id_unit_kerja", "tb_unit_kerja.id_unit_kerja");
 
-    if (rkatData.length > 0) {
+    if (paguData.length > 0) {
       return res.status(200).json({
         status: 1,
         message: "Data PAGU ditemukan",
@@ -44,7 +44,7 @@ router.post("/simpan", async (req, res) => {
         create_date: new Date(),
         update_date: new Date(),
       };
-      const [idPAGU] = await database("tb_rkat").insert(inputPAGU);
+      const [idPAGU] = await database("tb_pagu").insert(inputPAGU);
   
       return res.status(201).json({
         status: 1,
