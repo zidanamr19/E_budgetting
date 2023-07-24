@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
   });
   
 
-router.use("/simpan", validasi_data.data,verifikasi_validasi_data, async(req,res) =>{
+router.post("/simpan", validasi_data.data,verifikasi_validasi_data, async(req,res) =>{
     const data = req.body;
     const input = {
         ...data,

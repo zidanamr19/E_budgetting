@@ -143,7 +143,7 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
 
   try {
     const programRenstra = await database("tb_renstra")
-      .select("program")
+      .select("id_renstra","program", "baseline") // Menambahkan kolom baseline ke dalam select query
       .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
       .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
       .where("tb_tahun_restra.nama_tahun", nama_tahun)
@@ -168,6 +168,7 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
     });
   }
 });
+
 
 
 router.post("/multi/insert", async (req, res) => {
@@ -210,8 +211,8 @@ router.post("/multi/insert", async (req, res) => {
     // Simpan data ke tabel tb_tahun_capaian_renstra
     const inputTahunCapaianRenstra = {
       id_renstra: idRenstra,
-      tahun: JSON.stringify(data.tahun),
-      jumlah: JSON.stringify(data.jumlah),
+      tahun: data.tahun,
+      jumlah: data.jumlah,
       status: data.status,
     };
     await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
