@@ -35,36 +35,6 @@ router.get(`/`, async (req,res) =>{
     }
 })
 
-router.post(`/simpan`, validasi_data.data,verifikasi_validasi_data, async (req,res) =>{
-    const data = req.body
-    const input = {
-     ...data,
-     create_date :  new Date(),
-     status : "a"
-    } 
-    try {
-     const simpan = await database("tb_program_kerja").insert(input)
-     if(simpan){
-         return res.status(200).json({
-             status: 1,
-             message: "berhasil,",
-             result : {
-                 id_program_kerja : simpan[0],
-                 ...input
-             }
-         })
-     }else{
-         return res.status(400).json({
-             status : 0,
-             message : "gagal"
-         })
-     }
-    } catch (error) {
-     return res.status(500).json({
-         status : 0,
-         message : error.message
-     })
-    }
- })
+
  
  module.exports = router
