@@ -35,8 +35,9 @@ router.get("/", async (req, res) => {
 
 
 router.post("/simpan", async (req, res) => {
-    const { id_renstra, id_unit_kerja, tahun, baseline, jumlah, status } = req.body;
-  
+    const { id_renstra, id_unit_kerja, tahun, baseline, jumlah, } = req.body;
+    const status = "a";
+    
     try {
       // Simpan data ke tabel tb_rkat
       const inputRKAT = {
