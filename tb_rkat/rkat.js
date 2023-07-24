@@ -3,7 +3,7 @@ const router = express.Router();
 const database = require("../config/database")
 
 
-router.post("/", async (req, res) => {
+router.post("/simpan", async (req, res) => {
     const { id_renstra, id_unit_kerja, tahun, baseline, status } = req.body;
   
     try {
