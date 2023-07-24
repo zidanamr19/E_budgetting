@@ -143,7 +143,7 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
 
   try {
     const programRenstra = await database("tb_renstra")
-      .select("id_renstra","program",) // Menambahkan kolom baseline ke dalam select query
+      .select("id_renstra","program",) 
       .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
       .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
       .where("tb_tahun_restra.nama_tahun", nama_tahun)
@@ -334,7 +334,8 @@ router.put("/multi/edit", async (req, res) => {
             update_date: new Date(),
           };
 
-          await database("tb_tahun_capaian_renstra").where("id_tahun_capaian_renstra", id_tahun_capaian_renstra).update(updatedTahunCapaianRenstra);
+          await database("tb_tahun_capaian_renstra").where("id_tahun_capaian_renstra", id_tahun_capaian_renstra)
+          .update(updatedTahunCapaianRenstra);
 
           updatedData.push({
             id_tahun_capaian_renstra,
