@@ -6,8 +6,17 @@ const database = require("../config/database");
 router.get("/", async (req, res) => {
     try {
       const prokerData = await database("tb_program_kerja")
-        .select("tb_program_kerja.*", "tb_rkat.tahun")
-        .leftJoin("tb_rkat", "tb_program_kerja.id_rkat", "tb_rkat.id_rkat");
+        .select(
+          "tb_program_kerja.*",
+          "tb_rkat.tahun",
+          "tb_detail_program_kerja.nama_kegiatan"
+        )
+        .leftJoin("tb_rkat", "tb_program_kerja.id_rkat", "tb_rkat.id_rkat")
+        .leftJoin(
+          "tb_detail_program_kerja",
+          "tb_program_kerja.id_program_kerja",
+          "tb_detail_program_kerja.id_program_kerja"
+        );
   
       if (prokerData.length > 0) {
         return res.status(200).json({
@@ -28,6 +37,7 @@ router.get("/", async (req, res) => {
       });
     }
   });
+  
 
 // Pastikan Anda telah menginisialisasi objek database dengan koneksi ke database menggunakan Knex
 
