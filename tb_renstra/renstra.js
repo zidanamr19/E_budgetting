@@ -52,10 +52,36 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
       .where("tb_tahun_restra.nama_tahun", nama_tahun);
 
     if (result) {
+      // Format data tahun capaian renstra menjadi array
+      const formattedResult = {
+        renstra: result[0], // Ambil data renstra dari indeks pertama karena hasilnya merupakan array dari join tabel
+        sasaran_renstra: {
+          id_renstra: result[0].id_renstra,
+          sasaran_renstra: result[0].sasaran_renstra,
+          status: result[0].status,
+        },
+        strategi: {
+          id_renstra: result[0].id_renstra,
+          strategi: result[0].strategi,
+          status: result[0].status,
+        },
+        tahun_capaian_renstra: result.map((item) => ({
+          id_renstra: item.id_renstra,
+          tahun: item.tahun,
+          jumlah: item.jumlah,
+          status: item.status,
+        })),
+        dokumen_renstra: {
+          id_renstra: result[0].id_renstra,
+          nama_dokumen: result[0].nama_dokumen,
+          status: result[0].status,
+        },
+      };
+
       return res.status(200).json({
         status: 1,
         message: "Berhasil",
-        result: result,
+        result: formattedResult,
       });
     } else {
       return res.status(400).json({
@@ -70,6 +96,7 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
     });
   }
 });
+
 
 router.get("/", async (req, res) => {
   try {
@@ -234,14 +261,17 @@ router.post("/multi/insert", async (req, res) => {
     };
     await database("tb_strategi_renstra").insert(inputStrategi);
 
-    // Simpan data ke tabel tb_tahun_capaian_renstra
-    const inputTahunCapaianRenstra = {
-      id_renstra: idRenstra,
-      tahun: data.tahun,
-      jumlah: data.jumlah,
-      status: data.status,
-    };
-    await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
+    // Simpan data ke tabel tb_tahun_capaian_renstra (multi-insert)
+    let inputTahunCapaianRenstra = []; // Deklarasi variabel inputTahunCapaianRenstra
+    if (data.tahun && data.jumlah && data.tahun.length === data.jumlah.length) {
+      inputTahunCapaianRenstra = data.tahun.map((tahun, index) => ({
+        id_renstra: idRenstra,
+        tahun: tahun,
+        jumlah: data.jumlah[index],
+        status: data.status,
+      }));
+      await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
+    }
 
     // Simpan data ke tabel tb_dokumen_renstra
     const inputDokumenRenstra = {
@@ -261,7 +291,7 @@ router.post("/multi/insert", async (req, res) => {
         },
         sasaran_renstra: inputSasaranRenstra,
         strategi: inputStrategi,
-        tahun_capaian_renstra: inputTahunCapaianRenstra,
+        tahun_capaian_renstra: inputTahunCapaianRenstra, // Jika perlu, tambahkan array tahun capaian renstra
         dokumen_renstra: inputDokumenRenstra,
       },
     });
@@ -272,6 +302,8 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
+
+
 
 router.put("/multi/edit", async (req, res) => {
   const data = req.body;
