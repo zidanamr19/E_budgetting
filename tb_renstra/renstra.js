@@ -273,13 +273,16 @@ router.post("/multi/insert", async (req, res) => {
       await database("tb_tahun_capaian_renstra").insert(inputTahunCapaianRenstra);
     }
 
-    // Simpan data ke tabel tb_dokumen_renstra
-    const inputDokumenRenstra = {
-      id_renstra: idRenstra,
-      nama_dokumen: data.nama_dokumen,
-      status: data.status,
-    };
-    await database("tb_dokumen_renstra").insert(inputDokumenRenstra);
+    // Simpan data ke tabel tb_dokumen_renstra (multi-insert)
+    let inputDokumenRenstra = []; // Deklarasi variabel inputDokumenRenstra sebagai array kosong
+    if (data.dokumen && Array.isArray(data.dokumen)) {
+      inputDokumenRenstra = data.dokumen.map((dokumen) => ({
+        id_renstra: idRenstra,
+        nama_dokumen: dokumen.nama_dokumen,
+        status: dokumen.status,
+      }));
+      await database("tb_dokumen_renstra").insert(inputDokumenRenstra);
+    }
 
     return res.status(201).json({
       status: 1,
@@ -292,7 +295,7 @@ router.post("/multi/insert", async (req, res) => {
         sasaran_renstra: inputSasaranRenstra,
         strategi: inputStrategi,
         tahun_capaian_renstra: inputTahunCapaianRenstra, // Jika perlu, tambahkan array tahun capaian renstra
-        dokumen_renstra: inputDokumenRenstra,
+        dokumen_renstra: inputDokumenRenstra, // Jika perlu, tambahkan array dokumen renstra
       },
     });
   } catch (error) {
@@ -302,6 +305,7 @@ router.post("/multi/insert", async (req, res) => {
     });
   }
 });
+
 
 
 
