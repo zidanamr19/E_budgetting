@@ -129,6 +129,43 @@ router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (r
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const result = await database("tb_renstra")
+      .distinct("tb_bidang_renstra.nama_bidang", "tb_tahun_restra.nama_tahun")
+      .leftJoin(
+        "tb_bidang_renstra",
+        "tb_renstra.id_bidang_renstra",
+        "tb_bidang_renstra.id_bidang_renstra"
+      )
+      .leftJoin(
+        "tb_tahun_restra",
+        "tb_renstra.id_tahun_restra",
+        "tb_tahun_restra.id_tahun_restra"
+      );
+
+    if (result.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Berhasil",
+        result: result,
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
 router.get("/baseline-by-id-renstra/:id_renstra", async (req, res) => {
   const { id_renstra } = req.params;
 
