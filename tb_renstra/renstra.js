@@ -7,15 +7,13 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
   const { nama_bidang, nama_tahun } = req.params;
 
   try {
-    const result = await database("tb_renstra")
+    const mainResult = await database("tb_renstra")
       .select(
         "tb_renstra.*",
         "tb_bidang_renstra.nama_bidang",
         "tb_tahun_restra.nama_tahun",
         "tb_sasaran_renstra.sasaran_renstra",
         "tb_strategi_renstra.strategi",
-        "tb_tahun_capaian_renstra.tahun",
-        "tb_tahun_capaian_renstra.jumlah",
         "tb_dokumen_renstra.nama_dokumen"
       )
       .leftJoin(
@@ -39,43 +37,35 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         "tb_strategi_renstra.id_renstra"
       )
       .leftJoin(
-        "tb_tahun_capaian_renstra",
-        "tb_renstra.id_renstra",
-        "tb_tahun_capaian_renstra.id_renstra"
-      )
-      .leftJoin(
         "tb_dokumen_renstra",
         "tb_renstra.id_renstra",
         "tb_dokumen_renstra.id_renstra"
       )
       .where("tb_bidang_renstra.nama_bidang", nama_bidang)
-      .where("tb_tahun_restra.nama_tahun", nama_tahun);
+      .where("tb_tahun_restra.nama_tahun", nama_tahun)
+      .first();
 
-    if (result) {
-      // Format data tahun capaian renstra menjadi array
+    if (mainResult) {
+      // Get the corresponding data from tb_tahun_capaian_renstra
+      const tahunCapaianResult = await database("tb_tahun_capaian_renstra")
+        .select("tahun", "jumlah")
+        .where("id_renstra", mainResult.id_renstra);
+
+      // Hapus field id_renstra dan status pada sasaran, strategi, dan dokumen renstra
       const formattedResult = {
-        renstra: result[0], // Ambil data renstra dari indeks pertama karena hasilnya merupakan array dari join tabel
-        sasaran_renstra: {
-          id_renstra: result[0].id_renstra,
-          sasaran_renstra: result[0].sasaran_renstra,
-          status: result[0].status,
-        },
-        strategi: {
-          id_renstra: result[0].id_renstra,
-          strategi: result[0].strategi,
-          status: result[0].status,
-        },
-        tahun_capaian_renstra: result.map((item) => ({
-          id_renstra: item.id_renstra,
-          tahun: item.tahun,
-          jumlah: item.jumlah,
-          status: item.status,
-        })),
-        dokumen_renstra: {
-          id_renstra: result[0].id_renstra,
-          nama_dokumen: result[0].nama_dokumen,
-          status: result[0].status,
-        },
+        id_bidang_renstra: mainResult.id_bidang_renstra,
+        id_tahun_restra: mainResult.id_tahun_restra,
+        program: mainResult.program,
+        indikator: mainResult.indikator,
+        tujuan: mainResult.tujuan,
+        kondisi_existing: mainResult.kondisi_existing,
+        baseline: mainResult.baseline,
+        standart_ditetapkan: mainResult.standart_ditetapkan,
+        status: mainResult.status,
+        sasaran_renstra: mainResult.sasaran_renstra,
+        strategi: mainResult.strategi,
+        tahun_capaian_renstra: tahunCapaianResult,
+        dokumen_renstra: mainResult.nama_dokumen,
       };
 
       return res.status(200).json({
@@ -96,6 +86,7 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
     });
   }
 });
+
 
 
 router.get("/", async (req, res) => {
