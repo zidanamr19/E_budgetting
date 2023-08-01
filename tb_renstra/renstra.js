@@ -7,7 +7,7 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
   const { nama_bidang, nama_tahun } = req.params;
 
   try {
-    const mainResults = await database("tb_renstra")
+    const mainResult = await database("tb_renstra")
       .select(
         "tb_renstra.*",
         "tb_bidang_renstra.nama_bidang",
@@ -42,46 +42,36 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         "tb_dokumen_renstra.id_renstra"
       )
       .where("tb_bidang_renstra.nama_bidang", nama_bidang)
-      .where("tb_tahun_restra.nama_tahun", nama_tahun);
+      .where("tb_tahun_restra.nama_tahun", nama_tahun)
+      .first();
 
-    if (mainResults.length > 0) {
+    if (mainResult) {
       // Get the corresponding data from tb_tahun_capaian_renstra
-      const idRenstras = mainResults.map((result) => result.id_renstra);
-      const tahunCapaianResults = await database("tb_tahun_capaian_renstra")
-        .select("id_renstra", "tahun", "jumlah")
-        .whereIn("id_renstra", idRenstras);
+      const tahunCapaianResult = await database("tb_tahun_capaian_renstra")
+        .select("tahun", "jumlah")
+        .where("id_renstra", mainResult.id_renstra);
 
-      // Group the tahun capaian renstra data by id_renstra
-      const tahunCapaianRenstraByRenstraId = {};
-      tahunCapaianResults.forEach((tahunCapaianResult) => {
-        const { id_renstra, tahun, jumlah } = tahunCapaianResult;
-        if (!tahunCapaianRenstraByRenstraId[id_renstra]) {
-          tahunCapaianRenstraByRenstraId[id_renstra] = [];
-        }
-        tahunCapaianRenstraByRenstraId[id_renstra].push({ tahun, jumlah });
-      });
-
-      // Format the main results data
-      const formattedResults = mainResults.map((result) => ({
-        id_bidang_renstra: result.id_bidang_renstra,
-        id_tahun_restra: result.id_tahun_restra,
-        program: result.program,
-        indikator: result.indikator,
-        tujuan: result.tujuan,
-        kondisi_existing: result.kondisi_existing,
-        baseline: result.baseline,
-        standart_ditetapkan: result.standart_ditetapkan,
-        status: result.status,
-        sasaran_renstra: result.sasaran_renstra,
-        strategi: result.strategi,
-        tahun_capaian_renstra: tahunCapaianRenstraByRenstraId[result.id_renstra] || [],
-        dokumen_renstra: result.nama_dokumen,
-      }));
+      // Hapus field id_renstra dan status pada sasaran, strategi, dan dokumen renstra
+      const formattedResult = {
+        id_bidang_renstra: mainResult.id_bidang_renstra,
+        id_tahun_restra: mainResult.id_tahun_restra,
+        program: mainResult.program,
+        indikator: mainResult.indikator,
+        tujuan: mainResult.tujuan,
+        kondisi_existing: mainResult.kondisi_existing,
+        baseline: mainResult.baseline,
+        standart_ditetapkan: mainResult.standart_ditetapkan,
+        status: mainResult.status,
+        sasaran_renstra: mainResult.sasaran_renstra,
+        strategi: mainResult.strategi,
+        tahun_capaian_renstra: tahunCapaianResult,
+        dokumen_renstra: mainResult.nama_dokumen,
+      };
 
       return res.status(200).json({
         status: 1,
         message: "Berhasil",
-        result: formattedResults,
+        result: formattedResult,
       });
     } else {
       return res.status(400).json({
@@ -98,36 +88,6 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
 });
 
 
-router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (req, res) => {
-  const { nama_tahun, nama_bidang } = req.params;
-
-  try {
-    const programRenstra = await database("tb_renstra")
-      .select("id_renstra","program",) 
-      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
-      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
-      .where("tb_tahun_restra.nama_tahun", nama_tahun)
-      .where("tb_bidang_renstra.nama_bidang", nama_bidang);
-
-    if (programRenstra.length > 0) {
-      return res.status(200).json({
-        status: 1,
-        message: "Data ditemukan",
-        program_renstra: programRenstra,
-      });
-    } else {
-      return res.status(404).json({
-        status: 0,
-        message: "Data tidak ditemukan",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      status: 0,
-      message: error.message,
-    });
-  }
-});
 
 router.get("/", async (req, res) => {
   try {
@@ -165,6 +125,67 @@ router.get("/", async (req, res) => {
 });
 
 
+
+router.get("/bidang-renstra-by-tahun/:nama_tahun", async (req, res) => {
+  const { nama_tahun } = req.params;
+
+  try {
+    const bidangRenstra = await database("tb_bidang_renstra")
+      .select("nama_bidang")
+      .leftJoin("tb_renstra", "tb_bidang_renstra.id_bidang_renstra", "tb_renstra.id_bidang_renstra")
+      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
+      .where("tb_tahun_restra.nama_tahun", nama_tahun);
+
+    if (bidangRenstra.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Data ditemukan",
+        bidang_renstra: bidangRenstra,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+router.get("/program-renstra-by-tahun-bidang/:nama_tahun/:nama_bidang", async (req, res) => {
+  const { nama_tahun, nama_bidang } = req.params;
+
+  try {
+    const programRenstra = await database("tb_renstra")
+      .select("id_renstra","program",) 
+      .leftJoin("tb_bidang_renstra", "tb_renstra.id_bidang_renstra", "tb_bidang_renstra.id_bidang_renstra")
+      .leftJoin("tb_tahun_restra", "tb_renstra.id_tahun_restra", "tb_tahun_restra.id_tahun_restra")
+      .where("tb_tahun_restra.nama_tahun", nama_tahun)
+      .where("tb_bidang_renstra.nama_bidang", nama_bidang);
+
+    if (programRenstra.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Data ditemukan",
+        program_renstra: programRenstra,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
 
 router.get("/baseline-by-id-renstra/:id_renstra", async (req, res) => {
   const { id_renstra } = req.params;
