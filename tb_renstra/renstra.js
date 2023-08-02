@@ -14,7 +14,6 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         "tb_tahun_restra.nama_tahun",
         "tb_sasaran_renstra.sasaran_renstra",
         "tb_strategi_renstra.strategi",
-        "tb_dokumen_renstra.nama_dokumen"
       )
       .leftJoin(
         "tb_bidang_renstra",
@@ -36,11 +35,6 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         "tb_renstra.id_renstra",
         "tb_strategi_renstra.id_renstra"
       )
-      .leftJoin(
-        "tb_dokumen_renstra",
-        "tb_renstra.id_renstra",
-        "tb_dokumen_renstra.id_renstra"
-      )
       .where("tb_bidang_renstra.nama_bidang", nama_bidang)
       .where("tb_tahun_restra.nama_tahun", nama_tahun);
 
@@ -61,6 +55,21 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         tahunCapaianRenstraByRenstraId[id_renstra].push({ tahun, jumlah });
       });
 
+      // Get the corresponding data from tb_dokumen_renstra
+      const dokumenRenstraResults = await database("tb_dokumen_renstra")
+        .select("id_renstra", "nama_dokumen")
+        .whereIn("id_renstra", idRenstras);
+
+      // Group the dokumen renstra data by id_renstra
+      const dokumenRenstraByRenstraId = {};
+      dokumenRenstraResults.forEach((dokumenRenstraResult) => {
+        const { id_renstra, nama_dokumen } = dokumenRenstraResult;
+        if (!dokumenRenstraByRenstraId[id_renstra]) {
+          dokumenRenstraByRenstraId[id_renstra] = [];
+        }
+        dokumenRenstraByRenstraId[id_renstra].push(nama_dokumen);
+      });
+
       // Format the main results data
       const formattedResults = mainResults.map((result) => ({
         id_bidang_renstra: result.id_bidang_renstra,
@@ -75,7 +84,7 @@ router.get("/renstra/:nama_bidang/:nama_tahun", async (req, res) => {
         sasaran_renstra: result.sasaran_renstra,
         strategi: result.strategi,
         tahun_capaian_renstra: tahunCapaianRenstraByRenstraId[result.id_renstra] || [],
-        dokumen_renstra: result.nama_dokumen,
+        dokumen_renstra: dokumenRenstraByRenstraId[result.id_renstra] || [],
       }));
 
       return res.status(200).json({
