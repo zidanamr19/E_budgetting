@@ -40,24 +40,16 @@ router.post("/simpan", async (req, res) => {
   try {
     // Simpan data ke tabel tb_rkat
     const inputRKAT = {
-      id_renstra: id_renstra,
-      tahun: tahun,
-      baseline: baseline,
-      status: status,
-      create_date: new Date(),
-      update_date: new Date(),
     };
-    const [idRKAT] = await database("tb_rkat").insert(inputRKAT);
-
     // Simpan data id_unit_kerja dan jumlah ke dalam tabel tb_rkat
     for (let i = 0; i < id_unit_kerja.length; i++) {
       await database("tb_rkat").insert({
         id_renstra: id_renstra,
-      tahun: tahun,
-      baseline: baseline,
-      status: status,
-      create_date: new Date(),
-      update_date: new Date(),
+        tahun: tahun,
+        baseline: baseline,
+        status: status,
+        create_date: new Date(),
+        update_date: new Date(),
         id_unit_kerja: id_unit_kerja[i],
         jumlah: jumlah[i],
       });
@@ -67,8 +59,13 @@ router.post("/simpan", async (req, res) => {
       status: 1,
       message: "Berhasil",
       result: {
-        id_rkat: idRKAT,
         ...inputRKAT,
+        id_renstra: id_renstra,
+        tahun: tahun,
+        baseline: baseline,
+        status: status,
+        create_date: new Date(),
+        update_date: new Date(),
         id_unit_kerja: id_unit_kerja,
         jumlah: jumlah,
       },
