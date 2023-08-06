@@ -2,6 +2,39 @@ const express = require("express");
 const router = express.Router();
 const database = require("../config/database")
 
+router.get('/data-unit-kerja', async (req, res) => {
+  const { id_renstra, tahun } = req.query;
+
+  try {
+    let query = database('tb_rkat')
+      .select(
+        'tb_rkat.id_rkat',
+        'tb_rkat.id_renstra',
+        'tb_rkat.id_unit_kerja',
+        'tb_rkat.jumlah',
+        'tb_rkat.status',
+        'tb_unit_kerja.nama_unit_kerja'
+      )
+      .leftJoin('tb_unit_kerja', 'tb_rkat.id_unit_kerja', 'tb_unit_kerja.id_unit_kerja')
+      .where({
+        'tb_rkat.id_renstra': id_renstra,
+        'tb_rkat.tahun': tahun,
+      });
+
+    const rkatData = await query;
+
+    return res.status(200).json({
+      status: 1,
+      message: 'Data berhasil diambil',
+      data: rkatData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
 
 
 router.get('/', async (req, res) => {
@@ -9,7 +42,7 @@ router.get('/', async (req, res) => {
 
   try {
     let query = database('tb_rkat')
-      .select('tb_rkat.id_renstra', 'tb_rkat.tahun', 'tb_renstra.program') // Ganti 'nama_program' dengan kolom yang sesuai pada tb_renstra
+      .select('tb_rkat.id_renstra', 'tb_rkat.tahun','tb_rkat.baseline', 'tb_renstra.program') // Ganti 'nama_program' dengan kolom yang sesuai pada tb_renstra
       .leftJoin('tb_renstra', 'tb_rkat.id_renstra', 'tb_renstra.id_renstra'); // Ganti 'id_renstra' dan 'id' sesuai dengan kolom yang sesuai
 
     // Jika id_renstra dan tahun tersedia, lakukan filter
