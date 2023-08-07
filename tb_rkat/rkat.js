@@ -47,6 +47,7 @@ router.get('/data-rkat/:id_unit_kerja', async (req, res) => {
         'tb_rkat.id_unit_kerja',
         'tb_rkat.tahun',
         'tb_rkat.jumlah',
+        'tb_rkat.baseline',
         'tb_rkat.status',
         'tb_unit_kerja.nama_unit_kerja',
         'tb_renstra.program'
