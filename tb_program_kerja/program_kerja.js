@@ -37,9 +37,6 @@ router.get("/", async (req, res) => {
       });
     }
   });
-  
-
-// Pastikan Anda telah menginisialisasi objek database dengan koneksi ke database menggunakan Knex
 
 router.post("/simpan", async (req, res) => {
     const data = req.body;
@@ -51,7 +48,7 @@ router.post("/simpan", async (req, res) => {
         id_unit_kerja: data.id_unit_kerja,
         nama_program_kerja: data.nama_program_kerja,
         penjab: data.penjab,
-        waktu_pelaksanaan: new Date(data.waktu_pelaksanaan), // Ubah string tanggal menjadi objek Date
+        waktu_pelaksanaan: new Date(data.waktu_pelaksanaan), 
         ploting_dana: data.ploting_dana,
         status: data.status,
         create_date: new Date(),
