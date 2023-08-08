@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
 
   router.post("/simpan", async (req, res) => {
     const data = req.body;
-    
+  
     try {
       // Simpan data ke tabel tb_program_kerja
       const inputPROKER = {
@@ -52,21 +52,20 @@ router.get("/", async (req, res) => {
         create_date: new Date(),
         update_date: new Date(),
       };
+  
       const [idPROKER] = await database("tb_program_kerja").insert(inputPROKER);
-
-      // Simpan data ke tabel tb_detail_program_kerja dalam bentuk array
-      const namaKegiatanArray = data.nama_kegiatan;
-      const waktuPelaksanaanArray = data.waktu_pelaksanaan_array;
-      const plotingDanaArray = data.ploting_dana_array;
-
+  
+      // Simpan data kegiatan ke dalam array
+      const kegiatanArray = data.detail_program_kerja || [];
+  
       const inputdetailProkerArray = [];
-      for (let i = 0; i < namaKegiatanArray.length; i++) {
+      for (const kegiatan of kegiatanArray) {
         const detailProker = {
           id_program_kerja: idPROKER,
-          nama_kegiatan: namaKegiatanArray[i],
-          waktu_pelaksanaan: new Date(waktuPelaksanaanArray[i]),
-          ploting_dana: plotingDanaArray[i],
-          status: data.status,
+          nama_kegiatan: kegiatan.nama_kegiatan,
+          waktu_pelaksanaan: new Date(kegiatan.waktu_pelaksanaan),
+          ploting_dana: kegiatan.ploting_dana,
+          status: kegiatan.status,
         };
         inputdetailProkerArray.push(detailProker);
         await database("tb_detail_program_kerja").insert(detailProker);
@@ -87,8 +86,7 @@ router.get("/", async (req, res) => {
         message: error.message,
       });
     }
-});
-
+  });
   
 
  
