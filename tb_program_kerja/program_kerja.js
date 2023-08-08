@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
     }
   });
 
-router.post("/simpan", async (req, res) => {
+  router.post("/simpan", async (req, res) => {
     const data = req.body;
     
     try {
@@ -48,20 +48,29 @@ router.post("/simpan", async (req, res) => {
         id_unit_kerja: data.id_unit_kerja,
         nama_program_kerja: data.nama_program_kerja,
         penjab: data.penjab,
-        waktu_pelaksanaan: new Date(data.waktu_pelaksanaan), 
-        ploting_dana: data.ploting_dana,
         status: data.status,
         create_date: new Date(),
         update_date: new Date(),
       };
       const [idPROKER] = await database("tb_program_kerja").insert(inputPROKER);
 
-      const inputdetailProker = {
-        id_program_kerja: idPROKER,
-        nama_kegiatan: data.nama_kegiatan,
-        status: data.status,
-      };
-      await database("tb_detail_program_kerja").insert(inputdetailProker);
+      // Simpan data ke tabel tb_detail_program_kerja dalam bentuk array
+      const namaKegiatanArray = data.nama_kegiatan;
+      const waktuPelaksanaanArray = data.waktu_pelaksanaan_array;
+      const plotingDanaArray = data.ploting_dana_array;
+
+      const inputdetailProkerArray = [];
+      for (let i = 0; i < namaKegiatanArray.length; i++) {
+        const detailProker = {
+          id_program_kerja: idPROKER,
+          nama_kegiatan: namaKegiatanArray[i],
+          waktu_pelaksanaan: new Date(waktuPelaksanaanArray[i]),
+          ploting_dana: plotingDanaArray[i],
+          status: data.status,
+        };
+        inputdetailProkerArray.push(detailProker);
+        await database("tb_detail_program_kerja").insert(detailProker);
+      }
   
       return res.status(201).json({
         status: 1,
@@ -70,7 +79,7 @@ router.post("/simpan", async (req, res) => {
           id_program_kerja: idPROKER,
           ...inputPROKER,
         },
-        nama_kegiatan: inputdetailProker,
+        detail_program_kerja: inputdetailProkerArray,
       });
     } catch (error) {
       return res.status(500).json({
@@ -78,7 +87,8 @@ router.post("/simpan", async (req, res) => {
         message: error.message,
       });
     }
-  });
+});
+
   
 
  
