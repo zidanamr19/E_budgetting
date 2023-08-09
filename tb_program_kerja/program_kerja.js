@@ -38,6 +38,38 @@ router.get("/", async (req, res) => {
     }
   });
 
+
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      // Ambil data kegiatan dari database berdasarkan id_program_kerja
+      const kegiatan = await database('tb_detail_program_kerja')
+        .select('nama_kegiatan', 'waktu_pelaksanaan', 'ploting_dana')
+        .where('id_program_kerja', id);
+  
+      if (kegiatan.length > 0) {
+        return res.status(200).json({
+          status: 1,
+          message: 'Data ditemukan',
+          kegiatan: kegiatan,
+        });
+      } else {
+        return res.status(404).json({
+          status: 0,
+          message: 'Data tidak ditemukan',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        status: 0,
+        message: error.message,
+      });
+    }
+  });
+
+
+
   router.post("/simpan", async (req, res) => {
     const data = req.body;
   
