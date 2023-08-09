@@ -3,6 +3,31 @@ const router = express.Router();
 const database = require("../config/database");
 
 
+router.get("/list", async(req,res) => {
+  try {
+      const result = await database.select("tb_program_kerja.id_program_kerja", "tb_program_kerja.nama_program_kerja")
+      .from('tb_program_kerja')
+      if(result.length > 0){
+          return res.status(200).json({
+              status :1,
+              message : "Berhasil",
+              result : result
+          })
+      }else{
+         return res.status(400).json({
+             status : 0,
+             message : "Gagal",
+        })
+      }   
+  } catch (error) {
+      return res.status(500).json({
+          status : 0,
+          message : error.message
+      })
+  }
+})
+
+
 router.get("/", async (req, res) => {
     try {
       const prokerData = await database("tb_program_kerja")
