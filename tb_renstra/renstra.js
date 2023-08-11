@@ -403,4 +403,46 @@ router.get("/all", async (req,res) =>{
     }
 })
 
+
+router.get("/bidang-renstra", async (req, res) => {
+  try {
+    const bidangRenstraList = await database("tb_renstra")
+      .distinct("tb_rkat.id_rkat","tb_renstra.id_renstra", "tb_bidang_renstra.nama_bidang")
+      .leftJoin(
+        "tb_bidang_renstra",
+        "tb_renstra.id_bidang_renstra",
+        "tb_bidang_renstra.id_bidang_renstra"
+      )
+      .leftJoin(
+        "tb_rkat",
+        "tb_renstra.id_renstra",
+        "tb_rkat.id_renstra"
+      )
+      .whereNotNull("tb_renstra.id_bidang_renstra")
+      .groupBy("tb_bidang_renstra.nama_bidang");
+
+    if (bidangRenstraList.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: "Data ditemukan",
+        bidangRenstraList: bidangRenstraList,
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Data tidak ditemukan",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
+
+
 module.exports = router;
