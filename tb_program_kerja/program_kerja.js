@@ -89,15 +89,15 @@ router.get("/", async (req, res) => {
         .where('id_program_kerja', idProgramKerja);
   
       // Langkah 3: Mendapatkan kegiatan berdasarkan ID Program Kerja
-      const kegiatan = await database('tb_detail_program_kerja')
-        .select('id_detail_program_kerja','nama_kegiatan', 'waktu_pelaksanaan', 'ploting_dana')
-        .where('id_program_kerja', idProgramKerja);
+      // const kegiatan = await database('tb_detail_program_kerja')
+      //   .select('id_detail_program_kerja','nama_kegiatan', 'waktu_pelaksanaan', 'ploting_dana')
+      //   .where('id_program_kerja', idProgramKerja);
   
       return res.status(200).json({
         status: 1,
         message: 'Data ditemukan',
         programKerja: programKerjaList,
-        kegiatan: kegiatan,
+        // kegiatan: kegiatan,
       });
     } catch (error) {
       return res.status(500).json({
