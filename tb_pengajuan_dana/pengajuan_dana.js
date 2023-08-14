@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
       id_pengajuan_dana: pengajuan[0],
       id_detail_program_kerja: id_detail_program_kerja,
       nominal: total_dana,
-      status: (a,t),
+      status: status,
     };
     await database("tb_detail_pengajuan").insert(inputDetailPengajuan);
 
