@@ -4,7 +4,7 @@ const database = require("../config/database")
 
 // Endpoint untuk posting data pengajuan dana
 router.post("/", async (req, res) => {
-    const { id_detail_program_kerja, status } = req.body;
+    const { id_detail_program_kerja, status, tanggal_pengajuan } = req.body;
   
     try {
       // Ambil data plotting dana dari tb_detail_program_kerja
@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
       const pengajuan = await database("tb_pengajuan_dana").insert({
         id_detail_program_kerja: id_detail_program_kerja,
         nama_kegiatan: nama_kegiatan,
-        tanggal_pengajuan: new Date(),
+        tanggal_pengajuan: tanggal_pengajuan,
         total_dana: total_dana,
         status: status,
       });
@@ -47,7 +47,7 @@ router.post("/", async (req, res) => {
           id_pengajuan: pengajuan[0],
           id_detail_program_kerja: id_detail_program_kerja,
           nama_kegiatan: nama_kegiatan,
-          tanggal_pengajuan: new Date(),
+          tanggal_pengajuan: tanggal_pengajuan,
           total_dana: total_dana,
           status: status,
           detail_pengajuan: inputDetailPengajuan,
