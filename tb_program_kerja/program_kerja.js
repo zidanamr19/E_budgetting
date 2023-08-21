@@ -113,7 +113,7 @@ router.get("/", async (req, res) => {
     try {
       // Ambil data kegiatan dari database berdasarkan id_program_kerja dengan LEFT JOIN
       const kegiatan = await database('tb_detail_program_kerja')
-        .select('id_detail_program_kerja','id_program_kerja','nama_kegiatan', 'waktu_pelaksanaan', 'ploting_dana')
+        .select('id_detail_program_kerja','id_program_kerja','nama_kegiatan', 'waktu_pelaksanaan', 'ploting_dana', 'tb_detail_program_kerja.status as status')
         .leftJoin('tb_rkat', 'tb_detail_program_kerja.id_program_kerja', '=', 'tb_rkat.id_renstra')
         .where('tb_detail_program_kerja.id_program_kerja', id);
   
