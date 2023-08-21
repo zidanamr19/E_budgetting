@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
         nama_kegiatan: nama_kegiatan,
         tanggal_pengajuan: tanggal_pengajuan, // Gunakan tanggal_pengajuan dari permintaan POST
         total_dana: total_dana,
-        status: status,
+        status: "m",
       });
 
       // Setelah pengajuan sukses, ubah status nama kegiatan menjadi "t" (tidak aktif)
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
         id_pengajuan_dana: pengajuan[0],
         id_detail_program_kerja: id_detail_program_kerja,
         nominal: total_dana,
-        status: status, // Gunakan status "a" untuk status "m" pada detail pengajuan
+        status: "a", // Gunakan status "a" untuk status "m" pada detail pengajuan
       };
       await database("tb_detail_pengajuan").insert(inputDetailPengajuan);
 
