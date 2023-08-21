@@ -140,7 +140,7 @@ router.get("/", async (req, res) => {
 
 
 
-  router.post("/simpan", async (req, res) => {
+  router.post("/", async (req, res) => {
     const data = req.body;
   
     try {
@@ -167,7 +167,7 @@ router.get("/", async (req, res) => {
           nama_kegiatan: kegiatan.nama_kegiatan,
           waktu_pelaksanaan: new Date(kegiatan.waktu_pelaksanaan),
           ploting_dana: kegiatan.ploting_dana,
-          status: kegiatan.status,
+          status: "a",
         };
         inputdetailProkerArray.push(detailProker);
         await database("tb_detail_program_kerja").insert(detailProker);
