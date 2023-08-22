@@ -85,6 +85,112 @@ router.post("/", async (req, res) => {
 });
 
 
+// router.post("/", async (req, res) => {
+//   const requestData = req.body;
+
+//   try {
+//     const results = [];
+
+//     for (const data of requestData) {
+//       const { id_detail_program_kerja, status, tanggal_pengajuan } = data;
+
+//       // Ambil data plotting dana dari tb_detail_program_kerja
+//       const detailProgramKerja = await database("tb_detail_program_kerja")
+//         .select("nama_kegiatan", "ploting_dana", "id_program_kerja")
+//         .where("id_detail_program_kerja", id_detail_program_kerja)
+//         .first();
+
+//       if (!detailProgramKerja) {
+//         results.push({
+//           id_detail_program_kerja: id_detail_program_kerja,
+//           status: 0,
+//           message: "Detail program kerja tidak ditemukan",
+//         });
+//         continue; // Lanjut ke data berikutnya jika detail tidak ditemukan
+//       }
+
+//       const { nama_kegiatan, ploting_dana, id_program_kerja } = detailProgramKerja;
+
+//       // Ambil id_unit_kerja dari tb_program_kerja berdasarkan id_program_kerja
+//       const programKerja = await database("tb_program_kerja")
+//         .select("id_unit_kerja")
+//         .where("id_program_kerja", id_program_kerja)
+//         .first();
+
+//       if (!programKerja) {
+//         results.push({
+//           id_detail_program_kerja: id_detail_program_kerja,
+//           status: 0,
+//           message: "Program kerja tidak ditemukan",
+//         });
+//         continue; // Lanjut ke data berikutnya jika program kerja tidak ditemukan
+//       }
+
+//       const id_unit_kerja = programKerja.id_unit_kerja;
+
+//       // Simpan data pengajuan
+//       const pengajuan = await database("tb_pengajuan_dana").insert({
+//         id_detail_program_kerja: id_detail_program_kerja,
+//         nama_kegiatan: nama_kegiatan,
+//         tanggal_pengajuan: tanggal_pengajuan, // Gunakan tanggal_pengajuan dari permintaan POST
+//         total_dana: ploting_dana,
+//         status: "m",
+//         id_unit_kerja: id_unit_kerja, // Simpan id_unit_kerja di sini
+//       });
+
+//       // Simpan data ke tabel tb_history_pengajuan
+//       await database("tb_history_pengajuan").insert({
+//         id_pengajuan_dana: pengajuan[0],
+//         id_unit_kerja: id_unit_kerja, // Simpan id_unit_kerja di sini
+//       });
+
+//       // Setelah pengajuan sukses, ubah status nama kegiatan menjadi "t" (tidak aktif)
+//       await database("tb_detail_program_kerja")
+//         .where("id_detail_program_kerja", id_detail_program_kerja)
+//         .update({
+//           status: "t",
+//         });
+
+//       // Simpan data ke tabel tb_detail_pengajuan (multi-insert)
+//       const inputDetailPengajuan = {
+//         id_pengajuan_dana: pengajuan[0],
+//         id_detail_program_kerja: id_detail_program_kerja,
+//         nominal: ploting_dana,
+//         status: "a", // Gunakan status "a" untuk status "m" pada detail pengajuan
+//       };
+//       await database("tb_detail_pengajuan").insert(inputDetailPengajuan);
+
+//       results.push({
+//         id_detail_program_kerja: id_detail_program_kerja,
+//         status: 1,
+//         message: "Pengajuan dana berhasil disimpan",
+//         result: {
+//           id_pengajuan: pengajuan[0],
+//           id_detail_program_kerja: id_detail_program_kerja,
+//           nama_kegiatan: nama_kegiatan,
+//           tanggal_pengajuan: tanggal_pengajuan, // Gunakan tanggal_pengajuan dari permintaan POST
+//           total_dana: ploting_dana,
+//           status: status,
+//           detail_pengajuan: inputDetailPengajuan,
+//           id_unit_kerja: id_unit_kerja, // Sisipkan id_unit_kerja
+//         },
+//       });
+//     }
+
+//     return res.status(201).json({
+//       status: 1,
+//       message: "Proses pengajuan dana selesai",
+//       results: results,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: 0,
+//       message: error.message,
+//     });
+//   }
+// });
+
+
 router.get('/pengajuan/:id_detail_program_kerja', async (req, res) => {
   const { id_detail_program_kerja } = req.params;
 
@@ -115,6 +221,34 @@ const detailProgramKerja = await database('tb_pengajuan_dana as pd')
   }
 });
 
+
+
+// Endpoint untuk mengambil semua data pengajuan dana
+router.get('/', async (req, res) => {
+  try {
+    // Ambil semua data pengajuan dana dari database
+    const semuaPengajuan = await database('tb_pengajuan_dana')
+      .select('id_pengajuan_dana', 'id_detail_program_kerja', 'nama_kegiatan', 'tanggal_pengajuan', 'total_dana', 'status');
+
+    if (semuaPengajuan.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: 'Data semua pengajuan dana ditemukan',
+        pengajuan: semuaPengajuan,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: 'Data pengajuan dana tidak ditemukan',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
 
 
 // router.get('/pengajuan/:id_detail_program_kerja', async (req, res) => {
