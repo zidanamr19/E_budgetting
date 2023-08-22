@@ -85,6 +85,67 @@ router.post("/", async (req, res) => {
 });
 
 
+router.get('/pengajuan/:id_detail_program_kerja', async (req, res) => {
+  const { id_detail_program_kerja } = req.params;
+
+  try {
+    // Mengambil data id_detail_program_kerja dan nama_kegiatan dari tb_pengajuan_dana berdasarkan id_pengajuan
+const detailProgramKerja = await database('tb_pengajuan_dana as pd')
+.select('pd.id_pengajuan_dana', 'pd.id_detail_program_kerja')
+.leftJoin('tb_detail_program_kerja', 'pd.id_detail_program_kerja', '=', 'tb_detail_program_kerja.id_detail_program_kerja')
+.where('tb_detail_program_kerja.id_detail_program_kerja', id_detail_program_kerja);
+
+    if (detailProgramKerja.length > 0) {
+      return res.status(200).json({
+        status: 1,
+        message: 'Data ditemukan',
+        detail_program_kerja: detailProgramKerja,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: 'Data tidak ditemukan',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
+
+// router.get('/pengajuan/:id_detail_program_kerja', async (req, res) => {
+//   const { id_detail_program_kerja } = req.params;
+
+//   try {
+//     // Mengambil data id_pengajuan_dana dari tb_pengajuan_dana
+//     const pengajuan = await database('tb_pengajuan_dana')
+//       .select('id_pengajuan_dana')
+//       .where('id_detail_program_kerja', id_detail_program_kerja);
+
+//     if (pengajuan.length > 0) {
+//       return res.status(200).json({
+//         status: 1,
+//         message: 'Data ditemukan',
+//         pengajuan: pengajuan,
+//       });
+//     } else {
+//       return res.status(404).json({
+//         status: 0,
+//         message: 'Data tidak ditemukan',
+//       });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: 0,
+//       message: error.message,
+//     });
+//   }
+// });
+
 
 
 // router.post("/", async (req, res) => {
