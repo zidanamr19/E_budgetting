@@ -6,51 +6,104 @@ const fs = require("fs");
 const path = require("path");
  // Sesuaikan dengan impor modul database Anda
 
- router.post('/', upload.single('patch_dokumen'), async (req, res) => {
+//  router.post('/', upload.single('patch_dokumen'), async (req, res) => {
+//     try {
+//         // Mendapatkan tanggal saat ini
+//         const tanggal = new Date();
+        
+//         // Mendapatkan data dari permintaan
+//         const data = req.body; // Pastikan Anda telah mengirimkan data yang dibutuhkan
+        
+//         const uploadedFile = req.file; // Gunakan req.file untuk mengakses file yang diunggah
+        
+//         if (!uploadedFile) {
+//             return res.status(400).json({
+//                 status: 0,
+//                 message: "Dokumen tidak ditemukan",
+//             });
+//         }
+
+//         // Memasukkan data ke dalam database
+//         const insertedData = await database("tb_laporan_pengajuan").insert({
+//             id_pengajuan_dana: data.id_pengajuan_dana,
+//             tanggal: tanggal,
+//             patch_dokumen: uploadedFile.filename,
+//             status: data.status
+//         });
+
+//         // Mengembalikan respons yang mencakup data yang telah dimasukkan
+//         return res.status(200).json({
+//             status: 1,
+//             message: "Berhasil",
+//             results: {
+//                 id_laporan_pengajuan: insertedData[0], // Ambil ID laporan yang baru saja dimasukkan
+//                 ...data, // Sisipkan data yang telah diambil dari permintaan
+//                 tanggal: tanggal, // Gunakan tanggal saat ini
+//                 patch_dokumen: uploadedFile.filename,
+//                 status: data.status // Gunakan nama file yang diunggah
+//             }
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             status: 0,
+//             message: error.message
+//         });
+//     }
+// });
+
+
+router.post('/', upload.single('patch_dokumen'), async (req, res) => {
     try {
-        // Mendapatkan tanggal saat ini
-        const tanggal = new Date();
-        
-        // Mendapatkan data dari permintaan
-        const data = req.body; // Pastikan Anda telah mengirimkan data yang dibutuhkan
-        
-        const uploadedFile = req.file; // Gunakan req.file untuk mengakses file yang diunggah
-        
-        if (!uploadedFile) {
-            return res.status(400).json({
-                status: 0,
-                message: "Dokumen tidak ditemukan",
-            });
-        }
-
-        // Memasukkan data ke dalam database
-        const insertedData = await database("tb_laporan_pengajuan").insert({
-            id_pengajuan_dana: data.id_pengajuan_dana,
-            tanggal: tanggal,
-            patch_dokumen: uploadedFile.filename,
-            status: data.status
+      const tanggal = new Date();
+      const data = req.body;
+      const uploadedFile = req.file;
+  
+      if (!uploadedFile) {
+        return res.status(400).json({
+          status: 0,
+          message: 'Dokumen tidak ditemukan',
         });
-
-        // Mengembalikan respons yang mencakup data yang telah dimasukkan
-        return res.status(200).json({
-            status: 1,
-            message: "Berhasil",
-            results: {
-                id_laporan_pengajuan: insertedData[0], // Ambil ID laporan yang baru saja dimasukkan
-                ...data, // Sisipkan data yang telah diambil dari permintaan
-                tanggal: tanggal, // Gunakan tanggal saat ini
-                patch_dokumen: uploadedFile.filename,
-                status: data.status // Gunakan nama file yang diunggah
-            }
-        });
+      }
+  
+      // Mendapatkan nama dokumen dari nama file yang diunggah
+      const namaDokumen = uploadedFile.originalname; // Anda dapat menggunakan 'filename' jika perlu
+  
+      const insertedData = await database('tb_laporan_pengajuan').insert({
+        id_pengajuan_dana: data.id_pengajuan_dana,
+        tanggal: tanggal,
+        status: 'a',
+      });
+  
+      const idLaporanPengajuan = insertedData[0];
+  
+      const detailDokumenData = {
+        id_laporan: idLaporanPengajuan,
+        patch_dokumen: uploadedFile.filename,
+        nama_dokumen: namaDokumen,
+      };
+  
+      await database('tb_detail_dokumen_laporan').insert(detailDokumenData);
+  
+      return res.status(200).json({
+        status: 1,
+        message: 'Berhasil',
+        results: {
+          id_laporan_pengajuan: idLaporanPengajuan,
+          ...data,
+          tanggal: tanggal,
+          patch_dokumen: uploadedFile.filename,
+          status: 'a',
+          nama_dokumen: namaDokumen,
+        },
+      });
     } catch (error) {
-        return res.status(500).json({
-            status: 0,
-            message: error.message
-        });
+      return res.status(500).json({
+        status: 0,
+        message: error.message,
+      });
     }
-});
-
+  });
+  
 
 // router.post('/upload/add', upload.single('patch_dokumen'), async (req, res) => {
 //     try {
