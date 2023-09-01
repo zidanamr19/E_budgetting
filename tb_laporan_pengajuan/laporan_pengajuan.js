@@ -64,26 +64,19 @@ router.post('/', upload.single('patch_dokumen'), async (req, res) => {
           message: 'Dokumen tidak ditemukan',
         });
       }
-  
-      // Mendapatkan nama dokumen dari nama file yang diunggah
-      const namaDokumen = uploadedFile.originalname; // Anda dapat menggunakan 'filename' jika perlu
-  
+      const namaDokumen = uploadedFile.originalname;
       const insertedData = await database('tb_laporan_pengajuan').insert({
         id_pengajuan_dana: data.id_pengajuan_dana,
         tanggal: tanggal,
         status: 'a',
       });
-  
       const idLaporanPengajuan = insertedData[0];
-  
       const detailDokumenData = {
         id_laporan: idLaporanPengajuan,
         patch_dokumen: uploadedFile.filename,
         nama_dokumen: namaDokumen,
       };
-  
       await database('tb_detail_dokumen_laporan').insert(detailDokumenData);
-  
       return res.status(200).json({
         status: 1,
         message: 'Berhasil',
