@@ -6,7 +6,7 @@ const verifikasi_validasi_data = require("../middleware/verifikasi_validasi_data
 
 router.get(`/`, async (req,res) =>{
     try {
-        const result = await database.select("nama_tahun","status").from('tb_tahun_restra')
+        const result = await database.select("id_tahun_restra","nama_tahun","status").from('tb_tahun_restra')
         if(result.length > 0){
             return res.status(200).json({
                 status :1,
