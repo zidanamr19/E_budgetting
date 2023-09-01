@@ -34,7 +34,7 @@ router.get("/:id_unit_kerja", async (req, res) => {
 
   try {
     const paguData = await database("tb_pagu")
-      .select("tb_pagu.jumlah", "tb_pagu.status","tb_pagu.id_unit_kerja")
+      .select("tb_pagu.id_unit_kerja","tb_pagu.jumlah", "tb_pagu.status")
       .where("tb_pagu.id_unit_kerja", id_unit_kerja);
 
     if (paguData.length > 0) {
