@@ -133,6 +133,40 @@ router.get('/:id', async (req, res) => {
 });
 
 
+router.get('/jumlah/:id_unit_kerja', async (req, res) => {
+  const { id_unit_kerja } = req.params;
+
+  try {
+    // Ambil data plotting dana dari tabel tb_program_kerja berdasarkan id_unit_kerja
+    const result = await database('tb_program_kerja')
+      .select('tb_program_kerja.id_program_kerja', 'tb_detail_program_kerja.ploting_dana')
+      .leftJoin('tb_detail_program_kerja', 'tb_program_kerja.id_program_kerja', '=', 'tb_detail_program_kerja.id_program_kerja')
+      .where('tb_program_kerja.id_unit_kerja', id_unit_kerja);
+
+    if (result.length > 0) {
+      // Menghitung total plotting dana jika ada lebih dari satu
+      const totalPlotingDana = result.reduce((acc, item) => acc + item.ploting_dana, 0);
+
+      return res.status(200).json({
+        status: 1,
+        message: 'Data ditemukan',
+        totalPlotingDana: totalPlotingDana,
+      });
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: 'Data tidak ditemukan',
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+});
+
+
   router.post("/", async (req, res) => {
     const data = req.body;
   
